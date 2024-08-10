@@ -2,7 +2,7 @@
 
 Welcome to **Anju's Duties** – a simple app designed to help in-laws easily view their daughter's duty schedule. All made possible by their loving son-in-law (that's me 😉).
 
-<img src="assets/images/splash_screen.png" alt="Home Screen" width="400"/>
+<img src="assets/images/splash_screen.png" alt="Home Screen" width="300"/>
 
 ## 🎯 Project Overview
 
@@ -53,10 +53,10 @@ The app will fetch the duty schedule from the Google Sheet and display it in a b
 
 Here's a sneak peek of what Anju's Duties looks like:
 
-<img src="assets/images/screenshots/day_duty.png" alt="Home Screen if Day Duty" width="400"/>
-<img src="assets/images/screenshots/night_duty.png" alt="Home Screen if Night Duty" width="400"/>
-<img src="assets/images/screenshots/off_duty.png" alt="Home Screen if Off Duty" width="400"/>
-<img src="assets/images/screenshots/duty_calendar.png" alt="Duty Calendar" width="400"/>
+<img src="assets/images/screenshots/day_duty.png" alt="Home Screen if Day Duty" width="300"/>
+<img src="assets/images/screenshots/night_duty.png" alt="Home Screen if Night Duty" width="300"/>
+<img src="assets/images/screenshots/off_duty.png" alt="Home Screen if Off Duty" width="300"/>
+<img src="assets/images/screenshots/duty_calendar.png" alt="Duty Calendar" width="300"/>
 
 
 ## 🤝 Contributing
