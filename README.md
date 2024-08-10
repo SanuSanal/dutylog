@@ -2,7 +2,7 @@
 
 Welcome to **Anju's Duties** – a simple app designed to help in-laws easily view their daughter's duty schedule. All made possible by their loving son-in-law (that's me 😉).
 
-![App Screenshot](assets/images/splash_screen.png)
+<img src="assets/images/splash_screen.png" alt="Home Screen" width="400"/>
 
 ## 🎯 Project Overview
 
@@ -34,8 +34,11 @@ https://docs.google.com/spreadsheets/d/<<sheet-id>>/edit#gid=0
 
 1. In the root directory of your project, create a file named `.env`.
 2. Add your **Sheet ID** and **API Key** like this:
+
+````
 SHEET_ID=your_google_sheet_id_here
 API_KEY=your_google_api_key_here
+````
 
 ## 🚀 Usage
 Once you've set up your .env file with the required credentials, you're all set! Run the app using the following command:
@@ -50,10 +53,11 @@ The app will fetch the duty schedule from the Google Sheet and display it in a b
 
 Here's a sneak peek of what Anju's Duties looks like:
 
-![Home Screen if Day Duty](assets/images/screenshots/day_duty.png)
-![Home Screen if Night Duty](assets/images/screenshots/night_duty.png)
-![Home Screen if Off Duty](assets/images/screenshots/off_duty.png)
-![Duty Calendar](assets/images/screenshots/duty_calendar.png)
+<img src="assets/images/screenshots/day_duty.png" alt="Home Screen if Day Duty" width="400"/>
+<img src="assets/images/screenshots/night_duty.png" alt="Home Screen if Night Duty" width="400"/>
+<img src="assets/images/screenshots/off_duty.png" alt="Home Screen if Off Duty" width="400"/>
+<img src="assets/images/screenshots/duty_calendar.png" alt="Duty Calendar" width="400"/>
+
 
 ## 🤝 Contributing
 
