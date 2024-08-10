@@ -63,11 +63,11 @@ Here's a sneak peek of what Anju's Duties looks like:
 
 Want to make Anju's Duties even better? You're welcome to contribute!
 
-Fork the repo.
-Create a new branch (git checkout -b feature/amazing-feature).
-Commit your changes (git commit -m 'Add some amazing feature').
-Push to the branch (git push origin feature/amazing-feature).
-Open a Pull Request.
+- Fork the repo.
+- Create a new branch (git checkout -b feature/amazing-feature).
+- Commit your changes (git commit -m 'Add some amazing feature').
+- Push to the branch (git push origin feature/amazing-feature).
+- Open a Pull Request.
 
 ## 📄 License
 
