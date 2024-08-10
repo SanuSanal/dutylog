@@ -26,7 +26,7 @@ class GoogleSheetApi {
   Future<Map<DateTime, String>> fetchSheetDataApiCall(String sheetName) async {
     Map<DateTime, String> dutyCalendar = {};
     var sheetId = dotenv.env['SHEET_ID']!;
-    var apiKey = dotenv.env['API_kEY']!;
+    var apiKey = dotenv.env['API_KEY']!;
     final url =
         'https://sheets.googleapis.com/v4/spreadsheets/$sheetId/values/$sheetName?key=$apiKey';
     final response = await http.get(Uri.parse(url));
