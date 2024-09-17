@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 class DataLoadingPage extends StatelessWidget {
   final String message;
 
-  // Constructor to accept a message to display
   const DataLoadingPage({super.key, required this.message});
 
   @override

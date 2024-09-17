@@ -1,19 +1,32 @@
 import 'dart:convert';
 import 'package:anjus_duties/models/duty_data.dart';
+import 'package:anjus_duties/models/sheet_duty_data.dart';
+import 'package:anjus_duties/util/utils.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:googleapis/sheets/v4.dart' as sheets;
+import 'package:googleapis_auth/auth_io.dart';
 
 class GoogleSheetApi {
+  static final _spreadsheetId = dotenv.env['SHEET_ID']!;
+  static final serviceAccountCredentials = ServiceAccountCredentials.fromJson(
+    json.decode(utf8.decode(base64.decode(dotenv.env['ENCODED_JSON_KEY']!))),
+  );
+
+  static final _scopes = [sheets.SheetsApi.spreadsheetsScope];
+
   Future<DutyData> fetchSheetData() async {
     DateTime now = DateTime.now();
-    DateFormat formatter = DateFormat('MMM_yyyy');
-    String sheetName = formatter.format(now);
-    Map<DateTime, String> dutyCalendar = await fetchSheetDataApiCall(sheetName);
+    String sheetName = getSheetNameFromDate(now);
+    List<SheetDutyData> dutyCalendar = await loadSheetData(sheetName);
     if (dutyCalendar.isNotEmpty) {
-      dutyCalendar.removeWhere((key, value) => value == 'O');
+      dutyCalendar.removeWhere((value) => value.dutyType.toUpperCase() == 'O');
 
-      List<MapEntry<DateTime, String>> entries = dutyCalendar.entries.toList();
+      Map<DateTime, String> dutyMap = {
+        for (var duty in dutyCalendar) duty.dutyDate: duty.dutyType
+      };
+
+      List<MapEntry<DateTime, String>> entries = dutyMap.entries.toList();
       entries.sort((a, b) => a.key.compareTo(b.key));
 
       Map<DateTime, String> sortedDutyCalendar = Map.fromEntries(entries);
@@ -23,29 +36,37 @@ class GoogleSheetApi {
     }
   }
 
-  Future<Map<DateTime, String>> fetchSheetDataApiCall(String sheetName) async {
-    Map<DateTime, String> dutyCalendar = {};
-    var sheetId = dotenv.env['SHEET_ID']!;
-    var apiKey = dotenv.env['API_KEY']!;
-    final url =
-        'https://sheets.googleapis.com/v4/spreadsheets/$sheetId/values/$sheetName?key=$apiKey';
-    final response = await http.get(Uri.parse(url));
-    if (response.statusCode == 200) {
-      final Map<String, dynamic> data = jsonDecode(response.body);
-      final List<dynamic> values = data['values'];
+  static Future<List<SheetDutyData>> loadSheetData(String sheetName) async {
+    List<SheetDutyData> sheetData = [];
 
-      for (int i = 1; i < values.length; i++) {
-        var item = values[i];
-        var dateString = '${item[0]}_$sheetName';
-        DateFormat format = DateFormat("d_MMM_yyyy");
-        DateTime dateTime = format.parse(dateString);
-        DateTime date =
-            DateTime.utc(dateTime.year, dateTime.month, dateTime.day);
-        String type = item[1];
-        dutyCalendar[date] = type;
+    final client =
+        await clientViaServiceAccount(serviceAccountCredentials, _scopes);
+    final sheetsApi = sheets.SheetsApi(client);
+    var range = sheetName;
+    try {
+      final response =
+          await sheetsApi.spreadsheets.values.get(_spreadsheetId, range);
+
+      if (response.values != null) {
+        for (var i = 1; i < response.values!.length; i++) {
+          var row = response.values?[i];
+          var dateString = '${row![0]}_$sheetName';
+          DateFormat format = DateFormat("d_MMM_yyyy");
+          DateTime dateTime = format.parse(dateString);
+          DateTime date =
+              DateTime.utc(dateTime.year, dateTime.month, dateTime.day);
+          String type = row[1] as String;
+          String comment = '';
+          if (row.length >= 3) {
+            comment = row[2] as String;
+          }
+          sheetData.add(SheetDutyData(date, type, comment));
+        }
       }
+    } finally {
+      client.close();
     }
-    return dutyCalendar;
+    return sheetData;
   }
 
   DutyData _createDutyData(Map<DateTime, String> data, int day) {
@@ -77,5 +98,39 @@ class GoogleSheetApi {
     }
 
     return DutyData(dutyType, nextWorkingDateStr, nextDutyType);
+  }
+
+  static Future<bool> updateSheetRange(
+      DateTime editingDate, List<Object> sheetRowData) async {
+    String sheetName = getSheetNameFromDate(editingDate);
+
+    String range = '$sheetName!A${editingDate.day + 1}:C${editingDate.day + 1}';
+
+    final List<List<Object>> values = [sheetRowData];
+
+    final httpClient =
+        await clientViaServiceAccount(serviceAccountCredentials, _scopes);
+    final sheetsApi = sheets.SheetsApi(httpClient);
+
+    final valueRange = sheets.ValueRange.fromJson({
+      'range': range,
+      'values': values,
+    });
+
+    final sheets.UpdateValuesResponse response =
+        await sheetsApi.spreadsheets.values.update(
+      valueRange,
+      _spreadsheetId,
+      range,
+      valueInputOption: 'RAW',
+    );
+
+    httpClient.close();
+
+    if (response.updatedRows != null) {
+      return true;
+    } else {
+      return false;
+    }
   }
 }
