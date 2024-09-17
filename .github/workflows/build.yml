@@ -70,6 +70,12 @@ jobs:
       - name: Install Dependencies
         run: flutter pub get
 
+      - name: Create .env file
+        run: |
+          echo "SHEET_ID=${{ secrets.SHEET_ID }}" > .env
+          echo "ENCODED_JSON_KEY=${{ secrets.ENCODED_JSON_KEY }}" >> .env
+        shell: bash
+
       - name: Set up Keystore
         run: |
           mkdir -p ~/.android
