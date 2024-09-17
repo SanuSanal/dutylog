@@ -133,11 +133,4 @@ jobs:
             
           git add $VERSION_FILE
           git commit -m "Update version to $NEW_VERSION_NAME"
-          git push origin main
-        shell: bash
-        env:
-          JAVA_HOME: ${{ steps.setup-java.outputs.java-home }}
-          JAVA_HOME_17_X64: /opt/hostedtoolcache/Java_Temurin-Hotspot_jdk/17.0.12-7/x64
-          FLUTTER_ROOT: /opt/hostedtoolcache/flutter/stable-3.24.0-x64
-          PUB_CACHE: /home/runner/.pub-cache
-        
+          git push origin HEAD:main
