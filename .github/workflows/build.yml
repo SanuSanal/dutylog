@@ -81,16 +81,14 @@ jobs:
           mkdir -p ~/.android
           echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > ~/.android/keystore.jks
         shell: bash
-
+      
       - name: Build APK for all ABIs
         env:
           KEYSTORE_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
           KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEYSTORE_PASSWORD }}
         run: |
-          flutter build apk --release --split-per-abi \
-            --dart-define=KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }} \
-            --dart-define=KEY_ALIAS=${{ secrets.KEY_ALIAS }} \
-            --dart-define=KEY_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          flutter build apk --release --split-per-abi      
     
       - name: Install GitHub CLI
         run: sudo apt-get install gh
