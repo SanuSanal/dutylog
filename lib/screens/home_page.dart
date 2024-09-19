@@ -38,7 +38,7 @@ class HomePageState extends State<HomePage> {
             Text(
               "v$_appVersion",
               style: const TextStyle(
-                fontSize: 12,
+                fontSize: 14,
                 color: Colors.grey,
               ),
             ),
