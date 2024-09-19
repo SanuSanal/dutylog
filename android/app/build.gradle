@@ -49,7 +49,7 @@ android {
         release {
             keyAlias System.getenv('KEY_ALIAS') // Fetch from environment variables
             keyPassword System.getenv('KEYSTORE_PASSWORD') // Fetch from environment variables
-            storeFile file(System.getenv('HOME') + '/.android/anjus_duties.jks') // Use the keystore stored in the Android folder
+            storeFile file(System.getenv('HOME') + '/.android/keystore.jks') // Use the keystore stored in the Android folder
             storePassword System.getenv('KEYSTORE_PASSWORD') // Fetch from environment variables
         }
     }

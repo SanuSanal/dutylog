@@ -41,7 +41,7 @@ dependencies:
   flutter_dotenv: ^5.1.0
   googleapis: any
   googleapis_auth: any
-
+  package_info_plus: ^8.0.2
 
 dev_dependencies:
   flutter_test:
