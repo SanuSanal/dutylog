@@ -18,10 +18,7 @@ class MyApp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
           fontFamily: 'Acme'),
-      home: Scaffold(
-        appBar: AppBar(title: const Text("Anju's Duties")),
-        body: const HomePage(),
-      ),
+      home: const HomePage(),
     );
   }
 }
