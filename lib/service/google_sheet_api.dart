@@ -63,6 +63,8 @@ class GoogleSheetApi {
           sheetData.add(SheetDutyData(date, type, comment));
         }
       }
+    } catch (e) {
+      // DetailedApiRequestError: Sheet not available. nothing to do
     } finally {
       client.close();
     }
