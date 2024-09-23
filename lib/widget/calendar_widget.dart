@@ -50,7 +50,7 @@ class CalendarWidget extends StatelessWidget {
               MaterialPageRoute(
                 builder: (context) => EditDutyPage(
                   editingDate: day,
-                  dutyType: dayMarkers[day] ?? '',
+                  dutyType: dayMarkers[day] ?? 'O',
                   comment: _getCommentForTheDay(day),
                 ),
               ),

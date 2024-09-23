@@ -105,34 +105,131 @@ class GoogleSheetApi {
   static Future<bool> updateSheetRange(
       DateTime editingDate, List<Object> sheetRowData) async {
     String sheetName = getSheetNameFromDate(editingDate);
-
     String range = '$sheetName!A${editingDate.day + 1}:C${editingDate.day + 1}';
-
-    final List<List<Object>> values = [sheetRowData];
+    final valueRange = sheets.ValueRange.fromJson({
+      'range': range,
+      'values': [sheetRowData],
+    });
 
     final httpClient =
         await clientViaServiceAccount(serviceAccountCredentials, _scopes);
     final sheetsApi = sheets.SheetsApi(httpClient);
 
-    final valueRange = sheets.ValueRange.fromJson({
-      'range': range,
-      'values': values,
+    try {
+      final sheets.UpdateValuesResponse response =
+          await sheetsApi.spreadsheets.values.update(
+        valueRange,
+        _spreadsheetId,
+        range,
+        valueInputOption: 'RAW',
+      );
+
+      if (response.updatedRows != null) {
+        return true;
+      } else {
+        return false;
+      }
+    } on sheets.DetailedApiRequestError catch (_) {
+      bool sheetExists = await doesSheetExistByName(sheetsApi, sheetName);
+      if (!sheetExists) {
+        int numberOfDays = getDaysInMonth(editingDate);
+        bool result =
+            await createSheetAndFillData(sheetsApi, sheetName, numberOfDays);
+
+        if (result) {
+          bool updateResult = await updateSheetRange(editingDate, sheetRowData);
+          return updateResult;
+        } else {
+          return result;
+        }
+      } else {
+        return false;
+      }
+    } finally {
+      httpClient.close();
+    }
+  }
+
+  static Future<bool> doesSheetExistByName(
+      sheets.SheetsApi sheetsApi, String sheetName) async {
+    try {
+      var spreadsheet = await sheetsApi.spreadsheets.get(_spreadsheetId);
+
+      for (var sheet in spreadsheet.sheets!) {
+        if (sheet.properties!.title == sheetName) {
+          return true;
+        }
+      }
+      return false;
+    } on sheets.DetailedApiRequestError catch (_) {
+      return true;
+    } catch (e) {
+      return true;
+    }
+  }
+
+  static Future<bool> createSheetAndFillData(
+      sheets.SheetsApi sheetsApi, String sheetName, int days) async {
+    var range = "$sheetName!A1:C${days + 1}";
+    var values = [
+      ["Date", "Duty Type (D/N)", "Comment"],
+    ];
+
+    for (var i = 1; i <= days; i++) {
+      values.add(['$i', 'O', '']);
+    }
+
+    var valueRange = sheets.ValueRange.fromJson({
+      "range": range,
+      "values": values,
     });
 
-    final sheets.UpdateValuesResponse response =
-        await sheetsApi.spreadsheets.values.update(
-      valueRange,
-      _spreadsheetId,
-      range,
-      valueInputOption: 'RAW',
-    );
+    try {
+      // created sheet with $sheetName
+      var addSheetRequest = sheets.AddSheetRequest(
+        properties: sheets.SheetProperties(
+          title: sheetName,
+        ),
+      );
+      var batchUpdateRequest = sheets.BatchUpdateSpreadsheetRequest(
+        requests: [
+          sheets.Request(
+            addSheet: addSheetRequest,
+          ),
+        ],
+      );
 
-    httpClient.close();
+      await sheetsApi.spreadsheets
+          .batchUpdate(batchUpdateRequest, _spreadsheetId);
 
-    if (response.updatedRows != null) {
+      // update sheet
+      await sheetsApi.spreadsheets.values.update(
+        valueRange,
+        _spreadsheetId,
+        range,
+        valueInputOption: "RAW",
+      );
+
       return true;
-    } else {
+    } catch (e) {
       return false;
     }
+  }
+
+  static int getDaysInMonth(DateTime date) {
+    int year = date.year;
+    int month = date.month;
+    DateTime firstDayNextMonth;
+
+    if (month == 12) {
+      firstDayNextMonth = DateTime(year + 1, 1, 1);
+    } else {
+      firstDayNextMonth = DateTime(year, month + 1, 1);
+    }
+
+    DateTime lastDayCurrentMonth =
+        firstDayNextMonth.subtract(const Duration(days: 1));
+
+    return lastDayCurrentMonth.day;
   }
 }
