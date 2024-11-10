@@ -82,9 +82,7 @@ class CalendarWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: cellColor,
                   borderRadius: BorderRadius.circular(6.0),
-                  border: isSameDate(date)
-                      ? Border.all(color: textAndBorderColor, width: 3)
-                      : Border.all(color: Colors.transparent),
+                  border: _createBoxBorder(date, textAndBorderColor),
                 ),
                 margin: const EdgeInsets.all(4.0),
                 alignment: Alignment.center,
@@ -122,5 +120,15 @@ class CalendarWidget extends StatelessWidget {
     } else {
       return '';
     }
+  }
+
+  _createBoxBorder(DateTime day, Color borderColor) {
+    Color bottomBorderColor = _getCommentForTheDay(day) != ''
+        ? Colors.grey.withOpacity(0.5)
+        : isSameDate(day)
+            ? borderColor
+            : Colors.transparent;
+
+    return Border.all(color: bottomBorderColor, width: 3);
   }
 }
