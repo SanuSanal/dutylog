@@ -65,6 +65,10 @@ class CalendarWidget extends StatelessWidget {
           calendarBuilders: CalendarBuilders(
             defaultBuilder: (context, date, _) {
               String marker = dayMarkers[date] ?? '';
+              bool sameDay = isSameDate(date);
+              Color textColor = sameDay ? textAndBorderColor : Colors.black;
+              Color borderColor =
+                  sameDay ? textAndBorderColor : Colors.transparent;
               Color cellColor;
               switch (marker) {
                 case 'D':
@@ -82,16 +86,15 @@ class CalendarWidget extends StatelessWidget {
                 decoration: BoxDecoration(
                   color: cellColor,
                   borderRadius: BorderRadius.circular(6.0),
-                  border: _createBoxBorder(date, textAndBorderColor),
+                  border: _createBoxBorder(date, borderColor),
                 ),
                 margin: const EdgeInsets.all(4.0),
                 alignment: Alignment.center,
                 child: Text(
                   '${date.day}',
                   style: TextStyle(
-                    color: isSameDate(date) ? textAndBorderColor : Colors.black,
-                    fontWeight:
-                        isSameDate(date) ? FontWeight.bold : FontWeight.normal,
+                    color: textColor,
+                    fontWeight: sameDay ? FontWeight.bold : FontWeight.normal,
                   ),
                 ),
               );
@@ -123,11 +126,8 @@ class CalendarWidget extends StatelessWidget {
   }
 
   _createBoxBorder(DateTime day, Color borderColor) {
-    Color bottomBorderColor = _getCommentForTheDay(day) != ''
-        ? Colors.grey.withOpacity(0.5)
-        : isSameDate(day)
-            ? borderColor
-            : Colors.transparent;
+    Color bottomBorderColor =
+        _getCommentForTheDay(day) != '' ? Colors.red : borderColor;
 
     return Border.all(color: bottomBorderColor, width: 3);
   }

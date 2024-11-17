@@ -19,7 +19,7 @@ class CommentCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12.0),
-        border: Border.all(color: Colors.grey.withOpacity(0.3)),
+        border: Border.all(color: Colors.red),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
