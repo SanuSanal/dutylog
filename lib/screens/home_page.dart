@@ -3,6 +3,7 @@ import 'package:anjus_duties/screens/duty_page.dart';
 import 'package:anjus_duties/screens/error_loading_data_page.dart';
 import 'package:anjus_duties/service/google_sheet_api.dart';
 import 'package:anjus_duties/models/duty_data.dart';
+import 'package:app_autoupdate/app_autoupdate.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -44,32 +45,40 @@ class HomePageState extends State<HomePage> {
             ),
         ],
       )),
-      body: FutureBuilder<DutyData>(
-        future: _dutyData,
-        builder: (BuildContext context, AsyncSnapshot<DutyData> snapshot) {
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const DataLoadingPage(
-              message: 'Loading data, please wait...',
-            );
-          } else if (snapshot.hasError) {
-            return ErrorLoadingDataPage(
-              errorMessage: 'Failed to load data. Tap reload.',
-              onReload: _reloadData,
-            );
-          } else if (snapshot.hasData) {
-            DutyData dutyData = snapshot.data!;
-            return DutyPage(
-                todaysDutyType: dutyData.todaysDutyType,
-                nextDuty: dutyData.nextDuty,
-                nextDutyType: dutyData.nextDutyType);
-          } else {
-            return ErrorLoadingDataPage(
-              errorMessage:
-                  'Failed to load data. Click reload. \n Contact developer.',
-              onReload: _reloadData,
-            );
-          }
-        },
+      body: Stack(
+        children: [
+          FutureBuilder<DutyData>(
+            future: _dutyData,
+            builder: (BuildContext context, AsyncSnapshot<DutyData> snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const DataLoadingPage(
+                  message: 'Loading data, please wait...',
+                );
+              } else if (snapshot.hasError) {
+                return ErrorLoadingDataPage(
+                  errorMessage: 'Failed to load data. Tap reload.',
+                  onReload: _reloadData,
+                );
+              } else if (snapshot.hasData) {
+                DutyData dutyData = snapshot.data!;
+                return DutyPage(
+                    todaysDutyType: dutyData.todaysDutyType,
+                    nextDuty: dutyData.nextDuty,
+                    nextDutyType: dutyData.nextDutyType);
+              } else {
+                return ErrorLoadingDataPage(
+                  errorMessage:
+                      'Failed to load data. Click reload. \n Contact developer.',
+                  onReload: _reloadData,
+                );
+              }
+            },
+          ),
+          const AppUpdateWidget(
+            owner: 'SanuSanal',
+            repo: 'anjus-duties',
+          ),
+        ],
       ),
     );
   }
