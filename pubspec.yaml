@@ -42,7 +42,7 @@ dependencies:
   googleapis: any
   googleapis_auth: any
   package_info_plus: ^8.0.2
-  app_autoupdate: ^0.0.3
+  app_autoupdate: ^0.0.4
 
 dev_dependencies:
   flutter_test:

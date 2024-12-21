@@ -21,10 +21,10 @@ packages:
     dependency: "direct main"
     description:
       name: app_autoupdate
-      sha256: "4380fe2c6af9f4139ebd59708dd42dda7aea123e4fe962e0c8e2bf13ed416066"
+      sha256: b564f7b6da2ed700fa00ee70ce28f8110d299b3461b18af36654f55ec417d0e7
       url: "https://pub.dev"
     source: hosted
-    version: "0.0.3"
+    version: "0.0.4"
   archive:
     dependency: transitive
     description:
