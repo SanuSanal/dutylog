@@ -31,20 +31,27 @@ class HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-          title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          const Text("Anju's Duties"),
-          if (_appVersion.isNotEmpty)
-            Text(
-              "v$_appVersion",
-              style: const TextStyle(
-                fontSize: 14,
-                color: Colors.grey,
-              ),
+        title: RichText(
+          text: TextSpan(
+            text: "Anju's Duties ",
+            style: const TextStyle(
+              fontSize: 24,
+              fontFamily: 'Acme',
+              color: Colors.black,
             ),
-        ],
-      )),
+            children: [
+              if (_appVersion.isNotEmpty)
+                TextSpan(
+                  text: 'v$_appVersion',
+                  style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey,
+                      fontFeatures: [FontFeature.subscripts()]),
+                ),
+            ],
+          ),
+        ),
+      ),
       body: Stack(
         children: [
           FutureBuilder<DutyData>(
