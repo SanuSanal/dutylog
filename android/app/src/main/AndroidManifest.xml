@@ -6,7 +6,7 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
-        android:label="Anju's Duties"
+        android:label="DutyLog"
         android:name="${applicationName}"
         android:icon="@mipmap/logo1">
         <activity

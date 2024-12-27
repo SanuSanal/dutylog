@@ -9,6 +9,7 @@ class CalendarWidget extends StatelessWidget {
   final List<SheetDutyData> commentList;
   final DateTime focusDate;
   final Future<void> Function({DateTime? focusDay}) fetchData;
+  final String spreadsheetId;
 
   final DateTime _now = DateTime.now();
   late final DateTime lastDayOfPreviousMonth;
@@ -19,7 +20,8 @@ class CalendarWidget extends StatelessWidget {
       required this.dayMarkers,
       required this.focusDate,
       required this.fetchData,
-      required this.commentList}) {
+      required this.commentList,
+      required this.spreadsheetId}) {
     DateTime firstDayOfCurrentMonth =
         DateTime(focusDate.year, focusDate.month, 1);
     lastDayOfPreviousMonth =
@@ -45,17 +47,18 @@ class CalendarWidget extends StatelessWidget {
           calendarStyle: const CalendarStyle(isTodayHighlighted: false),
           onPageChanged: (focusedDay) => fetchData(focusDay: focusedDay),
           onDaySelected: (day, focusDay) async {
-            final bool result = await Navigator.push(
+            var result = await Navigator.push(
               context,
               MaterialPageRoute(
                 builder: (context) => EditDutyPage(
                   editingDate: day,
                   dutyType: dayMarkers[day] ?? 'O',
                   comment: _getCommentForTheDay(day),
+                  spreadsheetId: spreadsheetId,
                 ),
               ),
             );
-            if (result && context.mounted) {
+            if (result != null && result as bool && context.mounted) {
               fetchData(focusDay: focusDay);
               ScaffoldMessenger.of(context).showSnackBar(
                 const SnackBar(content: Text('Duty updated.')),
@@ -71,6 +74,12 @@ class CalendarWidget extends StatelessWidget {
                   sameDay ? textAndBorderColor : Colors.transparent;
               Color cellColor;
               switch (marker) {
+                case 'M':
+                  cellColor = const Color(0xFF50C878);
+                  break;
+                case 'E':
+                  cellColor = const Color(0xFF808000);
+                  break;
                 case 'D':
                   cellColor = Colors.green;
                   break;

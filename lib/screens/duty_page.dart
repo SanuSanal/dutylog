@@ -5,18 +5,22 @@ class DutyPage extends StatelessWidget {
   final String todaysDutyType;
   final String nextDuty;
   final String nextDutyType;
+  final String spreadsheetId;
 
   const DutyPage({
     super.key,
     required this.todaysDutyType,
     required this.nextDuty,
     required this.nextDutyType,
+    required this.spreadsheetId,
   });
 
   @override
   Widget build(BuildContext context) {
     String backgroundImage;
-    if (todaysDutyType == 'D') {
+    if (todaysDutyType == 'D' ||
+        todaysDutyType == 'M' ||
+        todaysDutyType == 'E') {
       backgroundImage = 'assets/images/day_background.jpg';
     } else if (todaysDutyType == 'N') {
       backgroundImage = 'assets/images/night_background.jpg';
@@ -24,7 +28,7 @@ class DutyPage extends StatelessWidget {
       backgroundImage = 'assets/images/relaxing_background.jpg';
     }
 
-    bool isLeftAligned = todaysDutyType != 'D';
+    bool isLeftAligned = todaysDutyType == 'O' || todaysDutyType == 'N';
     Color fontColor = todaysDutyType == 'N' ? Colors.white : Colors.black;
 
     return Container(
@@ -84,10 +88,39 @@ class DutyPage extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                            builder: (context) => const DutyCalendarPage()),
+                            builder: (context) => DutyCalendarPage(
+                                  spreadsheetId: spreadsheetId,
+                                )),
                       );
                     },
                     child: const Icon(Icons.calendar_month_rounded),
+                  ),
+                ),
+                const Align(
+                  alignment: Alignment.bottomCenter,
+                  child: Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.arrow_left,
+                          color: Colors.grey,
+                        ),
+                        Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 4.0),
+                          child: Icon(
+                            Icons.circle,
+                            size: 10.0,
+                            color: Colors.grey,
+                          ),
+                        ),
+                        Icon(
+                          Icons.arrow_right,
+                          color: Colors.grey,
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ],
@@ -104,6 +137,10 @@ class DutyPage extends StatelessWidget {
         return 'Night Duty';
       case 'O':
         return 'Off Day';
+      case 'M':
+        return 'Morning Duty';
+      case 'E':
+        return 'Evening Duty';
       default:
         return 'Unknown Duty';
     }

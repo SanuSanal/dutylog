@@ -5,12 +5,14 @@ class EditDutyPage extends StatefulWidget {
   final DateTime editingDate;
   final String dutyType;
   final String comment;
+  final String spreadsheetId;
 
   const EditDutyPage(
       {super.key,
       required this.editingDate,
       required this.dutyType,
-      required this.comment});
+      required this.comment,
+      required this.spreadsheetId});
 
   @override
   EditDutyPageState createState() => EditDutyPageState();
@@ -71,6 +73,14 @@ class EditDutyPageState extends State<EditDutyPage> {
                     value: _selectedDuty,
                     items: const [
                       DropdownMenuItem<String>(
+                        value: 'M',
+                        child: Text('Morning duty'),
+                      ),
+                      DropdownMenuItem<String>(
+                        value: 'E',
+                        child: Text('Evening duty'),
+                      ),
+                      DropdownMenuItem<String>(
                         value: 'D',
                         child: Text('Day duty'),
                       ),
@@ -95,6 +105,7 @@ class EditDutyPageState extends State<EditDutyPage> {
             const SizedBox(height: 20.0),
             TextField(
               controller: _commentController,
+              textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: 'Comment',
                 border: OutlineInputBorder(
@@ -118,7 +129,7 @@ class EditDutyPageState extends State<EditDutyPage> {
                       comment
                     ];
                     var isUpdated = await GoogleSheetApi.updateSheetRange(
-                        widget.editingDate, sheetRowData);
+                        widget.editingDate, sheetRowData, widget.spreadsheetId);
 
                     if (context.mounted) {
                       Navigator.pop(context, isUpdated);

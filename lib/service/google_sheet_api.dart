@@ -8,17 +8,17 @@ import 'package:googleapis/sheets/v4.dart' as sheets;
 import 'package:googleapis_auth/auth_io.dart';
 
 class GoogleSheetApi {
-  static final _spreadsheetId = dotenv.env['SHEET_ID']!;
+  static final _scopes = [sheets.SheetsApi.spreadsheetsScope];
+
   static final serviceAccountCredentials = ServiceAccountCredentials.fromJson(
     json.decode(utf8.decode(base64.decode(dotenv.env['ENCODED_JSON_KEY']!))),
   );
 
-  static final _scopes = [sheets.SheetsApi.spreadsheetsScope];
-
-  Future<DutyData> fetchSheetData() async {
+  Future<DutyData> fetchSheetData(String spreadsheetId) async {
     DateTime now = DateTime.now();
     String sheetName = getSheetNameFromDate(now);
-    List<SheetDutyData> dutyCalendar = await loadSheetData(sheetName);
+    List<SheetDutyData> dutyCalendar =
+        await loadSheetData(sheetName, spreadsheetId);
     if (dutyCalendar.isNotEmpty) {
       dutyCalendar.removeWhere((value) => value.dutyType.toUpperCase() == 'O');
 
@@ -36,16 +36,16 @@ class GoogleSheetApi {
     }
   }
 
-  static Future<List<SheetDutyData>> loadSheetData(String sheetName) async {
+  static Future<List<SheetDutyData>> loadSheetData(
+      String sheetName, String spreadsheetId) async {
     List<SheetDutyData> sheetData = [];
-
     final client =
         await clientViaServiceAccount(serviceAccountCredentials, _scopes);
     final sheetsApi = sheets.SheetsApi(client);
     var range = sheetName;
     try {
       final response =
-          await sheetsApi.spreadsheets.values.get(_spreadsheetId, range);
+          await sheetsApi.spreadsheets.values.get(spreadsheetId, range);
 
       if (response.values != null) {
         for (var i = 1; i < response.values!.length; i++) {
@@ -102,8 +102,8 @@ class GoogleSheetApi {
     return DutyData(dutyType, nextWorkingDateStr, nextDutyType);
   }
 
-  static Future<bool> updateSheetRange(
-      DateTime editingDate, List<Object> sheetRowData) async {
+  static Future<bool> updateSheetRange(DateTime editingDate,
+      List<Object> sheetRowData, String spreadsheetId) async {
     String sheetName = getSheetNameFromDate(editingDate);
     String range = '$sheetName!A${editingDate.day + 1}:C${editingDate.day + 1}';
     final valueRange = sheets.ValueRange.fromJson({
@@ -119,7 +119,7 @@ class GoogleSheetApi {
       final sheets.UpdateValuesResponse response =
           await sheetsApi.spreadsheets.values.update(
         valueRange,
-        _spreadsheetId,
+        spreadsheetId,
         range,
         valueInputOption: 'RAW',
       );
@@ -130,14 +130,16 @@ class GoogleSheetApi {
         return false;
       }
     } on sheets.DetailedApiRequestError catch (_) {
-      bool sheetExists = await doesSheetExistByName(sheetsApi, sheetName);
+      bool sheetExists =
+          await doesSheetExistByName(sheetsApi, sheetName, spreadsheetId);
       if (!sheetExists) {
         int numberOfDays = getDaysInMonth(editingDate);
-        bool result =
-            await createSheetAndFillData(sheetsApi, sheetName, numberOfDays);
+        bool result = await createSheetAndFillData(
+            sheetsApi, sheetName, numberOfDays, spreadsheetId);
 
         if (result) {
-          bool updateResult = await updateSheetRange(editingDate, sheetRowData);
+          bool updateResult =
+              await updateSheetRange(editingDate, sheetRowData, spreadsheetId);
           return updateResult;
         } else {
           return result;
@@ -150,10 +152,10 @@ class GoogleSheetApi {
     }
   }
 
-  static Future<bool> doesSheetExistByName(
-      sheets.SheetsApi sheetsApi, String sheetName) async {
+  static Future<bool> doesSheetExistByName(sheets.SheetsApi sheetsApi,
+      String sheetName, String spreadsheetId) async {
     try {
-      var spreadsheet = await sheetsApi.spreadsheets.get(_spreadsheetId);
+      var spreadsheet = await sheetsApi.spreadsheets.get(spreadsheetId);
 
       for (var sheet in spreadsheet.sheets!) {
         if (sheet.properties!.title == sheetName) {
@@ -168,8 +170,8 @@ class GoogleSheetApi {
     }
   }
 
-  static Future<bool> createSheetAndFillData(
-      sheets.SheetsApi sheetsApi, String sheetName, int days) async {
+  static Future<bool> createSheetAndFillData(sheets.SheetsApi sheetsApi,
+      String sheetName, int days, String spreadsheetId) async {
     var range = "$sheetName!A1:C${days + 1}";
     var values = [
       ["Date", "Duty Type (D/N)", "Comment"],
@@ -200,12 +202,12 @@ class GoogleSheetApi {
       );
 
       await sheetsApi.spreadsheets
-          .batchUpdate(batchUpdateRequest, _spreadsheetId);
+          .batchUpdate(batchUpdateRequest, spreadsheetId);
 
       // update sheet
       await sheetsApi.spreadsheets.values.update(
         valueRange,
-        _spreadsheetId,
+        spreadsheetId,
         range,
         valueInputOption: "RAW",
       );

@@ -43,6 +43,8 @@ dependencies:
   googleapis_auth: any
   package_info_plus: ^8.0.2
   app_autoupdate: ^0.0.4
+  shared_preferences: ^2.3.4
+  json_annotation: ^4.9.0
 
 dev_dependencies:
   flutter_test:
@@ -73,7 +75,7 @@ flutter:
     - assets/images/night_background.jpg
     - assets/images/relaxing_background.jpg
     - assets/images/splash_screen.png
-
+    - assets/images/training.png
 
     - .env
 

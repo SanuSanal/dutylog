@@ -5,7 +5,8 @@ import 'package:anjus_duties/widget/calendar_widget.dart';
 import 'package:flutter/material.dart';
 
 class DutyCalendarPage extends StatefulWidget {
-  const DutyCalendarPage({super.key});
+  final String spreadsheetId;
+  const DutyCalendarPage({super.key, required this.spreadsheetId});
 
   @override
   DutyCalendarPageState createState() => DutyCalendarPageState();
@@ -31,8 +32,8 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
     });
 
     focusDay ??= DateTime.now();
-    List<SheetDutyData> sheetDutyData =
-        await GoogleSheetApi.loadSheetData(getSheetNameFromDate(focusDay));
+    List<SheetDutyData> sheetDutyData = await GoogleSheetApi.loadSheetData(
+        getSheetNameFromDate(focusDay), widget.spreadsheetId);
     Map<DateTime, String> dayMarkers = {
       for (var duty in sheetDutyData) duty.dutyDate: duty.dutyType
     };
@@ -58,35 +59,27 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
       appBar: AppBar(
         title: const Text('Duty calendar'),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              child: Column(
                 children: [
-                  _buildLegend('Day duty', Colors.green),
-                  _buildLegend('Night duty', Colors.grey),
-                  _buildLegend('Off day', Colors.yellow),
-                ],
-              ),
-            ),
-            _isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : CalendarWidget(
+                  _initializeLegend(),
+                  CalendarWidget(
                     dayMarkers: _dayMarkers,
                     focusDate: _focusDate,
                     fetchData: _fetchData,
-                    commentList: _commentList),
-          ],
-        ),
-      ),
+                    commentList: _commentList,
+                    spreadsheetId: widget.spreadsheetId,
+                  ),
+                ],
+              ),
+            ),
     );
   }
 
   Widget _buildLegend(String label, Color color) {
-    return Row(
+    return Wrap(
       children: [
         Container(
           width: 16,
@@ -96,6 +89,30 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
         const SizedBox(width: 8),
         Text(label),
       ],
+    );
+  }
+
+  _initializeLegend() {
+    Set<String> dutyTypes =
+        _dayMarkers.isNotEmpty ? _dayMarkers.values.toSet() : {'O'};
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8.0),
+      child: Wrap(
+        spacing: 8.0,
+        runSpacing: 5.0,
+        direction: Axis.horizontal,
+        alignment: WrapAlignment.center,
+        children: [
+          if (dutyTypes.contains('M'))
+            _buildLegend('Morning duty', const Color(0xFF50C878)),
+          if (dutyTypes.contains('E'))
+            _buildLegend('Evening duty', const Color(0xFF808000)),
+          if (dutyTypes.contains('D')) _buildLegend('Day duty', Colors.green),
+          if (dutyTypes.contains('N')) _buildLegend('Night duty', Colors.grey),
+          if (dutyTypes.contains('O')) _buildLegend('Off day', Colors.yellow),
+        ],
+      ),
     );
   }
 }
