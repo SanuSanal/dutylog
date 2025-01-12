@@ -1,5 +1,6 @@
 import 'package:anjus_duties/service/local_storage_service.dart';
 import 'package:flutter/material.dart';
+import 'package:share_plus/share_plus.dart';
 
 class AddUserPage extends StatefulWidget {
   const AddUserPage({super.key});
@@ -46,6 +47,14 @@ class AddUserPageState extends State<AddUserPage> {
         FocusScope.of(context).unfocus();
       }
     }
+  }
+
+  void _shareUser(int index) {
+    final user = _users[index];
+    final String name = user['name'];
+    final String apiKey = user['apiKey'];
+    Share.share(
+        "Hi,\n\nI'm sharing $name's duty calendar with you.\n\nClick the link to view: https://anjus-duties.web.app/save?name=$name&apiKey=$apiKey");
   }
 
   Future<void> _deleteUser(int index) async {
@@ -166,11 +175,22 @@ class AddUserPageState extends State<AddUserPage> {
                               ),
                             ),
                             subtitle: Text(user['apiKey']),
-                            trailing: IconButton(
-                              icon: const Icon(
-                                Icons.delete,
-                              ),
-                              onPressed: () => _deleteUser(index),
+                            trailing: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.share,
+                                  ),
+                                  onPressed: () => _shareUser(index),
+                                ),
+                                IconButton(
+                                  icon: const Icon(
+                                    Icons.delete,
+                                  ),
+                                  onPressed: () => _deleteUser(index),
+                                ),
+                              ],
                             ),
                           ),
                         );
