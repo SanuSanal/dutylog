@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:anjus_duties/screens/add_user_page.dart';
 import 'package:anjus_duties/screens/data_loading_page.dart';
 import 'package:anjus_duties/screens/duty_page.dart';
@@ -7,6 +9,7 @@ import 'package:anjus_duties/service/google_sheet_api.dart';
 import 'package:anjus_duties/models/duty_data.dart';
 import 'package:anjus_duties/service/local_storage_service.dart';
 import 'package:app_autoupdate/app_autoupdate.dart';
+import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
 
@@ -18,6 +21,9 @@ class HomePage extends StatefulWidget {
 }
 
 class HomePageState extends State<HomePage> {
+  late AppLinks _appLinks;
+  StreamSubscription<Uri>? _linkSubscription;
+
   String _appVersion = '';
   late GoogleSheetApi googleSheetApi = GoogleSheetApi();
   Future<DutyData>? _dutyData;
@@ -27,8 +33,44 @@ class HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    _initDeepLinks();
     _loadAppVersion();
     _loadUsers();
+  }
+
+  @override
+  void dispose() {
+    _linkSubscription?.cancel();
+    super.dispose();
+  }
+
+  Future<void> _initDeepLinks() async {
+    _appLinks = AppLinks();
+
+    _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
+      final queryParams = uri.queryParameters;
+      if (uri.pathSegments.contains("save") &&
+          queryParams.containsKey('name') &&
+          queryParams['name']!.isNotEmpty &&
+          queryParams.containsKey('apiKey') &&
+          queryParams['apiKey']!.isNotEmpty) {
+        final name = queryParams['name']!;
+        final apiKey = queryParams['apiKey']!;
+
+        _saveUserFromApplink({'name': name, 'apiKey': apiKey, 'isHome': false});
+      }
+    });
+  }
+
+  void _saveUserFromApplink(Map<String, dynamic> jsonMap) async {
+    List<Map<String, dynamic>> users = await storeUserFromApplink(jsonMap);
+    if (_users.length < users.length) {
+      setState(() {
+        _users = users;
+        _selectedUser = users.length - 1;
+        _reloadData();
+      });
+    }
   }
 
   void _loadUsers() async {

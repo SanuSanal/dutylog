@@ -29,3 +29,15 @@ Future<List<Map<String, dynamic>>> storeJsonMap(
   await storeJsonList(jsonList);
   return jsonList;
 }
+
+Future<List<Map<String, dynamic>>> storeUserFromApplink(
+    Map<String, dynamic> jsonMap) async {
+  List<Map<String, dynamic>> jsonList = await getStoredJsonList();
+  if (jsonList.isNotEmpty &&
+      jsonList.any((element) => element['name'] == jsonMap['name'])) {
+    return jsonList;
+  }
+  jsonList.add(jsonMap);
+  await storeJsonList(jsonList);
+  return jsonList;
+}

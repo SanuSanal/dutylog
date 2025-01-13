@@ -54,7 +54,7 @@ class AddUserPageState extends State<AddUserPage> {
     final String name = user['name'];
     final String apiKey = user['apiKey'];
     Share.share(
-        "Hi,\n\nI'm sharing $name's duty calendar with you.\n\nClick the link to view: https://anjus-duties.web.app/save?name=$name&apiKey=$apiKey");
+        "Hi,\n\nI'm sharing $name's duty calendar with you.\n\nClick the link to view: https://dutylogshare.web.app/save?name=$name&apiKey=$apiKey");
   }
 
   Future<void> _deleteUser(int index) async {
