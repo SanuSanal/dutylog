@@ -1,3 +1,4 @@
+import 'package:anjus_duties/service/db_service.dart';
 import 'package:anjus_duties/service/local_storage_service.dart';
 import 'package:flutter/material.dart';
 import 'package:share_plus/share_plus.dart';
@@ -14,6 +15,7 @@ class AddUserPageState extends State<AddUserPage> {
   final TextEditingController _nameController = TextEditingController();
   final TextEditingController _apiKeyController = TextEditingController();
   List<Map<String, dynamic>> _users = [];
+  DbService dbService = DbService();
 
   @override
   void initState() {
@@ -32,6 +34,10 @@ class AddUserPageState extends State<AddUserPage> {
     if (_formKey.currentState!.validate()) {
       final String name = _nameController.text;
       final String apiKey = _apiKeyController.text;
+
+      int userId = await dbService.createUser(name);
+
+      print("LOG: User created with ID: $userId");
 
       await storeJsonMap({
         'name': name,

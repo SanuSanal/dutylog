@@ -5,6 +5,7 @@ import 'package:anjus_duties/screens/data_loading_page.dart';
 import 'package:anjus_duties/screens/duty_page.dart';
 import 'package:anjus_duties/screens/error_loading_data_page.dart';
 import 'package:anjus_duties/screens/user_not_added.dart';
+import 'package:anjus_duties/service/db_service.dart';
 import 'package:anjus_duties/service/google_sheet_api.dart';
 import 'package:anjus_duties/models/duty_data.dart';
 import 'package:anjus_duties/service/local_storage_service.dart';
@@ -45,6 +46,9 @@ class HomePageState extends State<HomePage> {
   }
 
   Future<void> _initDeepLinks() async {
+    DbService dbService = DbService();
+    await dbService.getData();
+
     _appLinks = AppLinks();
 
     _linkSubscription = _appLinks.uriLinkStream.listen((uri) {
