@@ -69,8 +69,10 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
         final imagePath = File('${directory.path}/screenshot.png');
         await imagePath.writeAsBytes(image);
 
+        final monthAndYear = getMonthAndYearFromDate(_focusDate);
+
         await Share.shareXFiles([XFile(imagePath.path)],
-            text: 'Check this out!');
+            text: 'Here’s my duty for the month $monthAndYear.');
       }
     } catch (e) {
       debugPrint('Error capturing screenshot: $e');
@@ -83,9 +85,12 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
       appBar: AppBar(
         title: const Text('Duty calendar'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.share),
-            onPressed: _captureAndShare,
+          Tooltip(
+            message: 'Share duty calendar',
+            child: IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: _captureAndShare,
+            ),
           ),
         ],
       ),

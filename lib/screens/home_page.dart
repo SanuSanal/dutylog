@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 
 import 'package:anjus_duties/screens/add_user_page.dart';
 import 'package:anjus_duties/screens/data_loading_page.dart';
@@ -12,6 +13,9 @@ import 'package:app_autoupdate/app_autoupdate.dart';
 import 'package:app_links/app_links.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info_plus/package_info_plus.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:screenshot/screenshot.dart';
+import 'package:share_plus/share_plus.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -29,6 +33,8 @@ class HomePageState extends State<HomePage> {
   Future<DutyData>? _dutyData;
   List<Map<String, dynamic>> _users = [];
   int _selectedUser = 0;
+
+  final ScreenshotController _screenshotController = ScreenshotController();
 
   @override
   void initState() {
@@ -123,6 +129,24 @@ class HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> _captureAndShare() async {
+    try {
+      final image = await _screenshotController.capture(
+          delay: const Duration(milliseconds: 100));
+
+      if (image != null) {
+        final directory = await getTemporaryDirectory();
+        final imagePath = File('${directory.path}/screenshot.png');
+        await imagePath.writeAsBytes(image);
+
+        await Share.shareXFiles([XFile(imagePath.path)],
+            text: 'Here’s my duty for today.');
+      }
+    } catch (e) {
+      debugPrint('Error capturing screenshot: $e');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -150,6 +174,13 @@ class HomePageState extends State<HomePage> {
           ),
         ),
         actions: [
+          Tooltip(
+            message: 'Share duty',
+            child: IconButton(
+              icon: const Icon(Icons.share),
+              onPressed: _captureAndShare,
+            ),
+          ),
           Tooltip(
             message: 'Set as home',
             child: IconButton(
@@ -192,44 +223,48 @@ class HomePageState extends State<HomePage> {
             });
           }
         },
-        child: Stack(
-          children: [
-            _users.isEmpty
-                ? const UserNotAdded()
-                : FutureBuilder<DutyData>(
-                    future: _dutyData,
-                    builder: (BuildContext context,
-                        AsyncSnapshot<DutyData> snapshot) {
-                      if (snapshot.connectionState == ConnectionState.waiting) {
-                        return const DataLoadingPage(
-                          message: 'Loading data, please wait...',
-                        );
-                      } else if (snapshot.hasError) {
-                        return ErrorLoadingDataPage(
-                          errorMessage: 'Failed to load data. Tap reload.',
-                          onReload: _reloadData,
-                        );
-                      } else if (snapshot.hasData) {
-                        DutyData dutyData = snapshot.data!;
-                        return DutyPage(
-                            todaysDutyType: dutyData.todaysDutyType,
-                            nextDuty: dutyData.nextDuty,
-                            nextDutyType: dutyData.nextDutyType,
-                            spreadsheetId: _users[_selectedUser]['apiKey']);
-                      } else {
-                        return ErrorLoadingDataPage(
-                          errorMessage:
-                              'Failed to load data. Click reload. \n Contact developer.',
-                          onReload: _reloadData,
-                        );
-                      }
-                    },
-                  ),
-            const AppUpdateWidget(
-              owner: 'SanuSanal',
-              repo: 'dutylog',
-            ),
-          ],
+        child: Screenshot(
+          controller: _screenshotController,
+          child: Stack(
+            children: [
+              _users.isEmpty
+                  ? const UserNotAdded()
+                  : FutureBuilder<DutyData>(
+                      future: _dutyData,
+                      builder: (BuildContext context,
+                          AsyncSnapshot<DutyData> snapshot) {
+                        if (snapshot.connectionState ==
+                            ConnectionState.waiting) {
+                          return const DataLoadingPage(
+                            message: 'Loading data, please wait...',
+                          );
+                        } else if (snapshot.hasError) {
+                          return ErrorLoadingDataPage(
+                            errorMessage: 'Failed to load data. Tap reload.',
+                            onReload: _reloadData,
+                          );
+                        } else if (snapshot.hasData) {
+                          DutyData dutyData = snapshot.data!;
+                          return DutyPage(
+                              todaysDutyType: dutyData.todaysDutyType,
+                              nextDuty: dutyData.nextDuty,
+                              nextDutyType: dutyData.nextDutyType,
+                              spreadsheetId: _users[_selectedUser]['apiKey']);
+                        } else {
+                          return ErrorLoadingDataPage(
+                            errorMessage:
+                                'Failed to load data. Click reload. \n Contact developer.',
+                            onReload: _reloadData,
+                          );
+                        }
+                      },
+                    ),
+              const AppUpdateWidget(
+                owner: 'SanuSanal',
+                repo: 'dutylog',
+              ),
+            ],
+          ),
         ),
       ),
     );

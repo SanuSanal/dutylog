@@ -4,3 +4,8 @@ String getSheetNameFromDate(DateTime now) {
   DateFormat formatter = DateFormat('MMM_yyyy');
   return formatter.format(now);
 }
+
+String getMonthAndYearFromDate(DateTime now) {
+  DateFormat formatter = DateFormat('MMMM, yyyy');
+  return formatter.format(now);
+}
