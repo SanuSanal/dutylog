@@ -1,12 +1,12 @@
 import 'dart:io';
-
+import 'dart:ui' as ui;
 import 'package:anjus_duties/models/sheet_duty_data.dart';
 import 'package:anjus_duties/service/google_sheet_api.dart';
 import 'package:anjus_duties/util/utils.dart';
 import 'package:anjus_duties/widget/calendar_widget.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:screenshot/screenshot.dart';
 import 'package:share_plus/share_plus.dart';
 
 class DutyCalendarPage extends StatefulWidget {
@@ -22,7 +22,9 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
   GoogleSheetApi sheetApi = GoogleSheetApi();
   late Map<DateTime, String> _dayMarkers;
   late List<SheetDutyData> _commentList;
-  final ScreenshotController _screenshotController = ScreenshotController();
+
+  final ScrollController _scrollController = ScrollController();
+  final _captureKey = GlobalKey();
 
   DateTime _focusDate = DateTime.now();
 
@@ -60,23 +62,29 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
   }
 
   Future<void> _captureAndShare() async {
-    try {
-      final image = await _screenshotController.capture(
-          delay: const Duration(milliseconds: 100));
+    final originalOffset = _scrollController.offset;
 
-      if (image != null) {
-        final directory = await getTemporaryDirectory();
-        final imagePath = File('${directory.path}/screenshot.png');
-        await imagePath.writeAsBytes(image);
+    _scrollController.jumpTo(0);
+    await Future.delayed(const Duration(milliseconds: 50));
 
-        final monthAndYear = getMonthAndYearFromDate(_focusDate);
+    RenderRepaintBoundary boundary =
+        _captureKey.currentContext!.findRenderObject() as RenderRepaintBoundary;
 
-        await Share.shareXFiles([XFile(imagePath.path)],
-            text: 'Here’s my duty for the month $monthAndYear.');
-      }
-    } catch (e) {
-      debugPrint('Error capturing screenshot: $e');
-    }
+    final image = await boundary.toImage(pixelRatio: 3.0);
+    final byteData = await image.toByteData(format: ui.ImageByteFormat.png);
+
+    if (byteData == null) return;
+
+    final directory = await getTemporaryDirectory();
+    final imagePath = File('${directory.path}/screenshot.png');
+    await imagePath.writeAsBytes(byteData.buffer.asUint8List());
+
+    final monthAndYear = getMonthAndYearFromDate(_focusDate);
+
+    await Share.shareXFiles([XFile(imagePath.path)],
+        text: 'Here’s my duty for the month $monthAndYear.');
+
+    _scrollController.jumpTo(originalOffset);
   }
 
   @override
@@ -96,9 +104,10 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Screenshot(
-              controller: _screenshotController,
-              child: SingleChildScrollView(
+          : SingleChildScrollView(
+              controller: _scrollController,
+              child: RepaintBoundary(
+                key: _captureKey,
                 child: Container(
                   color: Colors.white,
                   padding: const EdgeInsets.only(top: 16.0),
