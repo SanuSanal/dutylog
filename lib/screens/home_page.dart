@@ -177,7 +177,7 @@ class HomePageState extends State<HomePage> {
           Tooltip(
             message: 'Share duty',
             child: IconButton(
-              icon: const Icon(Icons.share),
+              icon: const Icon(Icons.ios_share),
               onPressed: _captureAndShare,
             ),
           ),

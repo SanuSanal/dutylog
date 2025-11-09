@@ -88,7 +88,7 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
           Tooltip(
             message: 'Share duty calendar',
             child: IconButton(
-              icon: const Icon(Icons.share),
+              icon: const Icon(Icons.ios_share),
               onPressed: _captureAndShare,
             ),
           ),
@@ -101,6 +101,7 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
               child: SingleChildScrollView(
                 child: Container(
                   color: Colors.white,
+                  padding: const EdgeInsets.only(top: 16.0),
                   child: Column(
                     children: [
                       _initializeLegend(),
