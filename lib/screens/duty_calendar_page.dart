@@ -99,17 +99,20 @@ class DutyCalendarPageState extends State<DutyCalendarPage> {
           : Screenshot(
               controller: _screenshotController,
               child: SingleChildScrollView(
-                child: Column(
-                  children: [
-                    _initializeLegend(),
-                    CalendarWidget(
-                      dayMarkers: _dayMarkers,
-                      focusDate: _focusDate,
-                      fetchData: _fetchData,
-                      commentList: _commentList,
-                      spreadsheetId: widget.spreadsheetId,
-                    ),
-                  ],
+                child: Container(
+                  color: Colors.white,
+                  child: Column(
+                    children: [
+                      _initializeLegend(),
+                      CalendarWidget(
+                        dayMarkers: _dayMarkers,
+                        focusDate: _focusDate,
+                        fetchData: _fetchData,
+                        commentList: _commentList,
+                        spreadsheetId: widget.spreadsheetId,
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),
