@@ -163,8 +163,6 @@ class GoogleSheetApi {
         }
       }
       return false;
-    } on sheets.DetailedApiRequestError catch (_) {
-      return true;
     } catch (e) {
       return true;
     }

@@ -64,7 +64,6 @@ class AddUserPageState extends State<AddUserPage> {
   }
 
   @override
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(

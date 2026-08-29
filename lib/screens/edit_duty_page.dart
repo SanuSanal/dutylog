@@ -21,7 +21,6 @@ class EditDutyPage extends StatefulWidget {
 class EditDutyPageState extends State<EditDutyPage> {
   late String _selectedDuty;
   late TextEditingController _commentController;
-  GoogleSheetApi sheetApi = GoogleSheetApi();
 
   @override
   void initState() {

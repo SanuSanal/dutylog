@@ -46,27 +46,6 @@ class UserNotAdded extends StatelessWidget {
           );
         },
       ),
-      // child: const Center(
-      //   child: Column(
-      //     mainAxisAlignment: MainAxisAlignment.center,
-      //     children: [
-      //       Text(
-      //         'User not added',
-      //         style: TextStyle(
-      //           fontSize: 21,
-      //           fontWeight: FontWeight.bold,
-      //         ),
-      //       ),
-      //       SizedBox(height: 8.0),
-      //       Text(
-      //         'Please add a user to continue',
-      //         style: TextStyle(
-      //           fontSize: 16,
-      //         ),
-      //       ),
-      //     ],
-      //   ),
-      // ),
     );
   }
 }
