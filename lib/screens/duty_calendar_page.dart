@@ -19,7 +19,6 @@ class DutyCalendarPage extends StatefulWidget {
 
 class DutyCalendarPageState extends State<DutyCalendarPage> {
   bool _isLoading = true;
-  GoogleSheetApi sheetApi = GoogleSheetApi();
   late Map<DateTime, String> _dayMarkers;
   late List<SheetDutyData> _commentList;
 

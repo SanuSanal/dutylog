@@ -143,7 +143,7 @@ class HomePageState extends State<HomePage> {
             text: 'Here’s my duty for today.');
       }
     } catch (e) {
-      debugPrint('Error capturing screenshot: $e');
+      // screenshot capture/share failed; nothing to do
     }
   }
 

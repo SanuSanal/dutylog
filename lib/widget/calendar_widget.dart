@@ -136,8 +136,9 @@ class CalendarWidget extends StatelessWidget {
 
   _createBoxBorder(DateTime day, Color borderColor) {
     Color bottomBorderColor =
-        _getCommentForTheDay(day) != '' ? Colors.red : borderColor;
-
-    return Border.all(color: bottomBorderColor, width: 3);
+        _getCommentForTheDay(day) != '' && !isSameDate(day)
+            ? Colors.red
+            : borderColor;
+    return Border.all(color: bottomBorderColor, width: 3.0);
   }
 }
